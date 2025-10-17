@@ -10,7 +10,11 @@ def add_task(
     title: str,
     description: str,
     deadline: str | None = None
-):
+) -> None:
+    """Add a new task to a specific project.
+
+    Validates word limits, deadline format, and task count before adding.
+    """
     project = next((p for p in projects if p.id == project_id), None)
     if not project:
         print("Project not found.")
@@ -47,7 +51,12 @@ def edit_task(
         description: str,
         status: str,
         deadline: str | None = None
-        ):
+        ) -> None:
+    """Edit an existing task in a project.
+
+    Updates task details such as title, description, status, and deadline.
+    Validates inputs before applying changes.
+    """
     project = next((p for p in projects if p.id == project_id), None)
     if not project:
         print("Project not found.")
@@ -83,7 +92,11 @@ def edit_task(
     print(f"Task '{task.title}' was edited.")
 
 
-def change_task_status(project_id: int, task_id: int, new_status: str):
+def change_task_status(project_id: int, task_id: int, new_status: str) -> None:
+    """Change the status of a specific task in a project.
+
+    Ensures the new status is valid before updating the task.
+    """
     project = next((p for p in projects if p.id == project_id), None)
     if not project:
         print("Project not found.")
@@ -102,7 +115,11 @@ def change_task_status(project_id: int, task_id: int, new_status: str):
     print(f"ask status '{task.title}' changed to '{new_status}'.")
 
 
-def delete_task(project_id: int, task_id: int):
+def delete_task(project_id: int, task_id: int) -> None:
+    """Delete a specific task from a project by its ID.
+
+    Removes the task if found; otherwise prints an error message.
+    """
     project = next((p for p in projects if p.id == project_id), None)
     if not project:
         print("Project not found.")
@@ -116,7 +133,11 @@ def delete_task(project_id: int, task_id: int):
         print("Task not found.")
 
 
-def list_tasks(project_id: int):
+def list_tasks(project_id: int) -> None:
+    """List all tasks in a specific project.
+
+    Displays task ID, title, status, and deadline for each task.
+    """
     project = next((p for p in projects if p.id == project_id), None)
     if not project:
         print("Project not found.")
