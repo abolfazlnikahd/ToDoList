@@ -2,7 +2,12 @@ from statics.statics import MAX_NUMBER_OF_PROJECT, projects
 from models.project import Project
 
 
-def create_project(name: str, description: str):
+def create_project(name: str, description: str) -> None:
+    """Create a new project.
+
+    Validates the project name and description for duplicates and word limits
+    before adding it to the list of projects.
+    """
     if len(projects) >= MAX_NUMBER_OF_PROJECT:
         print("Error: The number of projects exceeds the allowed limit.")
         return
@@ -18,7 +23,11 @@ def create_project(name: str, description: str):
     print(f"Project '{name}' was successfully created.")
 
 
-def edit_project(project_id: int, new_name: str, new_description: str):
+def edit_project(project_id: int, new_name: str, new_description: str) -> None:
+    """Edit an existing project's name and description.
+
+    Checks for duplicate names and word limits before updating the project.
+    """
     for p in projects:
         if p.id == project_id:
             duplicate_exists = any(
@@ -41,7 +50,11 @@ def edit_project(project_id: int, new_name: str, new_description: str):
     print("Project not found.")
 
 
-def delete_project(project_id: int):
+def delete_project(project_id: int) -> None:
+    """Delete a project by its ID.
+
+    Removes the project and all its associated tasks from the list.
+    """
     global projects
     before = len(projects)
     projects = [p for p in projects if p.id != project_id]
@@ -53,7 +66,11 @@ def delete_project(project_id: int):
         print("Project not found.")
 
 
-def list_projects():
+def list_projects() -> None:
+    """Print a list of all existing projects.
+
+    Displays each project's ID, name, and description.
+    """
     if not projects:
         print("There are no projects.")
         return
