@@ -8,6 +8,9 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "black (>=25.9.0,<26.0.0)",
+    "flake8 (>=7.3.0,<8.0.0)",
+    "isort (>=7.0.0,<8.0.0)"
 ]
 
 [tool.poetry]

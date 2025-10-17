@@ -1,0 +1,2 @@
+MAX_NUMBER_OF_PROJECT = 10
+projects = []
