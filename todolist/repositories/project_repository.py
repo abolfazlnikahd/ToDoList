@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from models.project import Project
 
+
 class ProjectRepository:
     def __init__(self, db: Session):
         self.db = db

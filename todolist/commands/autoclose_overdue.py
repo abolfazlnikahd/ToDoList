@@ -1,17 +1,17 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from db.session import SessionLocal
 from repositories.task_repository import TaskRepository
-from repositories.project_repository import ProjectRepository
+
 
 def autoclose_overdue():
     db = SessionLocal()
     try:
         task_repo = TaskRepository(db)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         overdue = task_repo.list_overdue(now)
         for t in overdue:
             t.status = "done"
-            t.closed_at = datetime.utcnow()
+            t.closed_at = datetime.now(timezone.utc)
         db.commit()
         print(f"Autoclosed {len(overdue)} tasks.")
     except Exception:
@@ -19,6 +19,7 @@ def autoclose_overdue():
         raise
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     autoclose_overdue()

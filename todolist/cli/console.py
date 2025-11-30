@@ -1,16 +1,26 @@
-from app.db.session import SessionLocal
-from app.repositories.project_repository import ProjectRepository
-from app.repositories.task_repository import TaskRepository
-from app.services.project_service import ProjectService
-from app.services.task_service import TaskService
-from app.exceptions import ServiceError, NotFoundError, ValidationError
+from db.session import SessionLocal
+from repositories.project_repository import ProjectRepository
+from repositories.task_repository import TaskRepository
+from todolist.services.project_services import ProjectService
+from todolist.services.task_services import TaskService
 from datetime import datetime
+from exceptions import NotFoundError, ValidationError
+
 
 def run_cli():
-    print("📌 ToDoList CLI started. Ctrl+C to exit.")
+    print("ToDoList CLI started. Ctrl+C to exit.")
     while True:
         try:
-            print("\n1. List projects\n2. Create project\n3. Delete project\n4. Edit project\n5. List tasks in project\n6. Add task\n7. Change task status\n8. Edit task\n9. Delete task\nq. Quit")
+            print("""\n1. List projects\n
+                        2. Create project\n
+                  3. Delete project\n
+                  4.Edit project\n
+                  5. List tasks in project\n
+                  6. Add task\n
+                  7.Change task status\n
+                  8.Edit task\n
+                  9. Delete task\n
+                  q. Quit""")
             choice = input("Choice: ").strip()
             if choice == "q":
                 break
@@ -57,8 +67,13 @@ def run_cli():
                     print("No tasks.")
                 else:
                     for t in tasks:
-                        dl = t.deadline.strftime("%Y-%m-%d") if t.deadline else "-"
-                        print(f"[{t.id}] {t.title} | {t.status} | deadline: {dl}")
+                        if t.deadline:
+                            dl = t.deadline.strftime("%Y-%m-%d")
+                        else:
+                            dl = "-"
+                        print(
+                            f"[{t.id}] {t.title} | {t.status} | deadline: {dl}"
+                            )
 
             elif choice == "6":
                 pid = int(input("Project ID to add task: ").strip())
@@ -106,11 +121,13 @@ def run_cli():
         except Exception as e:
             try:
                 db.rollback()
-            except:
+            except Exception as d:
+                print(d)
                 pass
             print("Unexpected error:", str(e))
         finally:
             try:
                 db.close()
-            except:
+            except Exception as d:
+                print(d)
                 pass
