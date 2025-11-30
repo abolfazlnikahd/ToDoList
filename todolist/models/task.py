@@ -1,27 +1,18 @@
-from dataclasses import dataclass, field
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+from db.base import Base
 from datetime import datetime
 
+class Task(Base):
+    __tablename__ = "tasks"
 
-@dataclass
-class Task:
-    """Represents a task within a project.
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String(300), nullable=False)
+    description = Column(String(2000), nullable=True)
+    status = Column(String(20), nullable=False, default="todo")  # todo | doing | done
+    deadline = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    Each task has an ID, title, description, status, and an optional deadline.
-    Only valid statuses are: 'todo', 'doing', and 'done'.
-    """
-    MAX_NUMBER_OF_TASK = 50
-    VALID_STATUS = ["todo", "doing", "done"]
-
-    id: int
-    title: str
-    description: str
-    status: str = field(default="todo")
-    deadline: datetime | None = None
-
-    def __post_init__(self) -> None:
-        if self.status not in self.VALID_STATUS:
-            valid = self.VALID_STATUS
-            status = self.status
-            raise ValueError(
-                f"The status '{status}' is not valid. Only {valid}"
-                )
+    project = relationship("Project", back_populates="tasks")

@@ -1,29 +1,13 @@
-from dataclasses import dataclass, field
-from typing import List
-from datetime import datetime
-from .task import Task
+from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy.orm import relationship
+from db.base import Base
 
+class Project(Base):
+    __tablename__ = "projects"
 
-MAX_NUMBER_OF_PROJECT = 10
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(300), unique=True, nullable=False)  # we'll treat words limit in service
+    description = Column(String(2000), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-
-@dataclass
-class Project:
-    """Represents a project that contains multiple tasks.
-
-    Each project has an ID, name, description, creation date,
-    and a list of tasks. Supports adding and deleting tasks.
-    """
-    id: int
-    name: str
-    description: str
-    created_at: datetime = field(default_factory=datetime.now)
-    tasks: List[Task] = field(default_factory=list)
-
-    def add_task(self, task: Task) -> None:
-        if len(self.tasks) >= Task.MAX_NUMBER_OF_TASK:
-            raise ValueError("The number of tasks exceeds the allowed limit.")
-        self.tasks.append(task)
-
-    def delete_task(self, task_id: int) -> None:
-        self.tasks = [t for t in self.tasks if t.id != task_id]
+    tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
