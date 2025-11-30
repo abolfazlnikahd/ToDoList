@@ -1,79 +1,53 @@
-from statics.statics import MAX_NUMBER_OF_PROJECT, projects
+from repositories.project_repository import ProjectRepository
 from models.project import Project
+from config import MAX_NUMBER_OF_PROJECT
+from exceptions import NotFoundError, ValidationError
 
+def _words_count_ok(s: str, max_words: int) -> bool:
+    return len(s.split()) <= max_words
 
-def create_project(name: str, description: str) -> None:
-    """Create a new project.
+class ProjectService:
+    def __init__(self, repo: ProjectRepository):
+        # Constructor Injection: repo از بیرون تزریق می‌شود
+        self.repo = repo
 
-    Validates the project name and description for duplicates and word limits
-    before adding it to the list of projects.
-    """
-    if len(projects) >= MAX_NUMBER_OF_PROJECT:
-        print("Error: The number of projects exceeds the allowed limit.")
-        return
-    if any(p.name == name for p in projects):
-        print("Error: Duplicate project name")
-        return
-    if len(name.split()) > 30 or len(description.split()) > 150:
-        print("Error: Word limit not respected.")
-        return
+    def create_project(self, name: str, description: str) -> Project:
+        # validations (business rules)
+        if len(self.repo.list_all()) >= MAX_NUMBER_OF_PROJECT:
+            raise ValidationError("Maximum number of projects reached.")
+        if not _words_count_ok(name, 30) or not _words_count_ok(description or "", 150):
+            raise ValidationError("Name/description exceed word limits.")
+        if self.repo.get_by_name(name):
+            raise ValidationError("Project name already exists.")
 
-    project = Project(id=len(projects) + 1, name=name, description=description)
-    projects.append(project)
-    print(f"Project '{name}' was successfully created.")
+        proj = Project(name=name, description=description)
+        self.repo.add(proj)
+        return proj
 
+    def edit_project(self, project_id: int, new_name: str, new_description: str) -> Project:
+        proj = self.repo.get_by_id(project_id)
+        if not proj:
+            raise NotFoundError("Project not found.")
+        if not _words_count_ok(new_name, 30) or not _words_count_ok(new_description or "", 150):
+            raise ValidationError("Name/description exceed word limits.")
+        existing = self.repo.get_by_name(new_name)
+        if existing and existing.id != project_id:
+            raise ValidationError("Another project with this name exists.")
+        proj.name = new_name
+        proj.description = new_description
+        return proj
 
-def edit_project(project_id: int, new_name: str, new_description: str) -> None:
-    """Edit an existing project's name and description.
+    def delete_project(self, project_id: int) -> None:
+        proj = self.repo.get_by_id(project_id)
+        if not proj:
+            raise NotFoundError("Project not found.")
+        self.repo.delete(proj)
 
-    Checks for duplicate names and word limits before updating the project.
-    """
-    for p in projects:
-        if p.id == project_id:
-            duplicate_exists = any(
-                                    x.name == new_name and x.id != project_id
-                                    for x in projects
-            )
-            if duplicate_exists:
-                print("Error: Duplicate project name")
-                return
-            name_word_count = len(new_name.split())
-            description_word_count = len(new_description.split())
+    def list_projects(self):
+        return self.repo.list_all()
 
-            if name_word_count > 30 or description_word_count > 150:
-                print("Error: Word limit not respected.")
-                return
-            p.name = new_name
-            p.description = new_description
-            print(f"Project '{p.name}' was edited.")
-            return
-    print("Project not found.")
-
-
-def delete_project(project_id: int) -> None:
-    """Delete a project by its ID.
-
-    Removes the project and all its associated tasks from the list.
-    """
-    global projects
-    before = len(projects)
-    projects = [p for p in projects if p.id != project_id]
-    if len(projects) < before:
-        print(
-            f"Project with ID {project_id} was deleted "
-            "(all tasks were also deleted).")
-    else:
-        print("Project not found.")
-
-
-def list_projects() -> None:
-    """Print a list of all existing projects.
-
-    Displays each project's ID, name, and description.
-    """
-    if not projects:
-        print("There are no projects.")
-        return
-    print("List of projects:")
-    for p in projects:
-        print(f"[{p.id}] {p.name} - {p.description}")
+    def get_project(self, project_id: int) -> Project:
+        proj = self.repo.get_by_id(project_id)
+        if not proj:
+            raise NotFoundError("Project not found.")
+        return proj
