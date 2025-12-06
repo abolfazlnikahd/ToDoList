@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from db.session import SessionLocal
-from repositories.task_repository import TaskRepository
+from todolist.db.session import SessionLocal
+from todolist.repositories.task_repository import TaskRepository
 
 
 def autoclose_overdue():

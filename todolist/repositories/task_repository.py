@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from models.task import Task
+from todolist.models.task import Task
 from datetime import datetime
 
 
@@ -27,7 +27,7 @@ class TaskRepository:
         return (
             self.db.query(Task)
             .filter(
-                Task.deadline.is_not(None),   # 👈 بجای != None
+                Task.deadline.is_not(None),
                 Task.deadline < now,
                 Task.status != "done"
             )

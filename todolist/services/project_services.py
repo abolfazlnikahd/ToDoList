@@ -1,7 +1,7 @@
-from repositories.project_repository import ProjectRepository
-from models.project import Project
-from config import MAX_NUMBER_OF_PROJECT
-from exceptions import NotFoundError, ValidationError
+from todolist.repositories.project_repository import ProjectRepository
+from todolist.models.project import Project
+from todolist.config import MAX_NUMBER_OF_PROJECT
+from todolist.exceptions import NotFoundError, ValidationError
 
 
 def _words_count_ok(s: str, max_words: int) -> bool:
@@ -13,7 +13,6 @@ class ProjectService:
         self.repo = repo
 
     def create_project(self, name: str, description: str) -> Project:
-        # validations (business rules)
         if len(self.repo.list_all()) >= MAX_NUMBER_OF_PROJECT:
             raise ValidationError("Maximum number of projects reached.")
         if not _words_count_ok(name, 30):

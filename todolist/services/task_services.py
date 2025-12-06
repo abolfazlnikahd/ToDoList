@@ -1,9 +1,9 @@
-from repositories.task_repository import TaskRepository
-from repositories.project_repository import ProjectRepository
-from models.task import Task
-from exceptions import NotFoundError, ValidationError
+from todolist.repositories.task_repository import TaskRepository
+from todolist.repositories.project_repository import ProjectRepository
+from todolist.models.task import Task
+from todolist.exceptions import NotFoundError, ValidationError
 from datetime import datetime
-from config import MAX_NUMBER_OF_TASK
+from todolist.config import MAX_NUMBER_OF_TASK
 
 VALID_STATUS = ("todo", "doing", "done")
 

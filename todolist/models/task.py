@@ -1,21 +1,44 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from db.base import Base
+from __future__ import annotations
 from datetime import datetime, timezone
+import enum
+from typing import Optional, TYPE_CHECKING
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
+from sqlalchemy.orm import Mapped, relationship
+
+from todolist.db.base import Base
+
+if TYPE_CHECKING:
+    from .project import Project
+
+
+class TaskStatus(enum.Enum):
+    TODO = "todo"
+    DOING = "doing"
+    DONE = "done"
 
 
 class Task(Base):
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True, index=True)
-    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"),
-                        nullable=False)
-    title = Column(String(300), nullable=False)
-    description = Column(String(2000), nullable=True)
-    status = Column(String(20), nullable=False, default="todo")
-    deadline = Column(DateTime, nullable=True)
-    closed_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime(timezone=True),
-                        default=lambda: datetime.now(timezone.utc))
+    id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    title: Mapped[str] = Column(String(150), nullable=False)
+    description: Mapped[Optional[str]] = Column(String(500), nullable=True)
+    status: Mapped[TaskStatus] = Column(Enum(TaskStatus),
+                                        default=TaskStatus.TODO,
+                                        nullable=False)
+    deadline: Mapped[Optional[datetime]] = Column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = Column(DateTime,
+                                          default=lambda: datetime.now(timezone.utc))
+    closed_at: Mapped[Optional[datetime]] = Column(DateTime, nullable=True)
 
-    project = relationship("Project", back_populates="tasks")
+    project_id: Mapped[int] = Column(Integer,
+                                     ForeignKey("projects.id"),
+                                     nullable=False)
+
+    project: Mapped["Project"] = relationship("Project",
+                                              back_populates="tasks")
+
+    def __repr__(self):
+        return f"""<Task(id={self.id},
+        title='{self.title}',
+        status='{self.status}')>"""

@@ -1,10 +1,10 @@
-from db.session import SessionLocal
-from repositories.project_repository import ProjectRepository
-from repositories.task_repository import TaskRepository
+from todolist.db.session import SessionLocal
+from todolist.repositories.project_repository import ProjectRepository
+from todolist.repositories.task_repository import TaskRepository
 from todolist.services.project_services import ProjectService
 from todolist.services.task_services import TaskService
 from datetime import datetime
-from exceptions import NotFoundError, ValidationError
+from todolist.exceptions import NotFoundError, ValidationError
 
 
 def run_cli():

@@ -1,3 +1,4 @@
-from cli.console import run_cli
+from todolist.cli.console import run_cli
+
 if __name__ == "__main__":
     run_cli()
