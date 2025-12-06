@@ -1,29 +1,30 @@
-from dataclasses import dataclass, field
-from typing import List
-from datetime import datetime
-from .task import Task
+from __future__ import annotations
+from datetime import datetime, timezone
+from typing import List, Optional, TYPE_CHECKING
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import Mapped, relationship
+
+from todolist.db.base import Base
+
+if TYPE_CHECKING:
+    from .task import Task
 
 
-MAX_NUMBER_OF_PROJECT = 10
+class Project(Base):
+    __tablename__ = "projects"
 
+    id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = Column(String(100),
+                               unique=True,
+                               nullable=False,
+                               index=True)
+    description: Mapped[Optional[str]] = Column(String(500), nullable=True)
+    created_at: Mapped[datetime] = Column(DateTime,
+                                          default=lambda: datetime.now(timezone.utc))
 
-@dataclass
-class Project:
-    """Represents a project that contains multiple tasks.
+    tasks: Mapped[List["Task"]] = relationship("Task",
+                                               back_populates="project",
+                                               cascade="all, delete-orphan")
 
-    Each project has an ID, name, description, creation date,
-    and a list of tasks. Supports adding and deleting tasks.
-    """
-    id: int
-    name: str
-    description: str
-    created_at: datetime = field(default_factory=datetime.now)
-    tasks: List[Task] = field(default_factory=list)
-
-    def add_task(self, task: Task) -> None:
-        if len(self.tasks) >= Task.MAX_NUMBER_OF_TASK:
-            raise ValueError("The number of tasks exceeds the allowed limit.")
-        self.tasks.append(task)
-
-    def delete_task(self, task_id: int) -> None:
-        self.tasks = [t for t in self.tasks if t.id != task_id]
+    def __repr__(self):
+        return f"<Project(id={self.id}, name='{self.name}')>"
